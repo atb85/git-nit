@@ -26,8 +26,16 @@ There are three stages to the git nit pipeline
 This is the challenging choice, we need something which doesn't become a tedious process for the reviewer while also being involved enough to encourage proper use
 
 - [Commit suggestions](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/incorporating-feedback-in-your-pull-request)
-- leaving a `nit` comment which can remove the nit with an action based off review (possible??) 
+- leaving a `nit` comment which can remove the nit with an [action triggered upon review](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#pull_request_review_comment)  
+
+### Checking methods
+
+- GitHub action fired on [approval](https://docs.github.com/en/actions/writing-workflows/choosing-when-your-workflow-runs/events-that-trigger-workflows#running-a-workflow-when-a-pull-request-is-approved)
+
 
 ## What does a *nit* look like
-- Something which can't be predicted (otherwise a ctrl+f would break the system)
+- Something which can't be predicted (otherwise a ctrl+f could allow a way-round)
 - Something which does not break the code
+- Currently using a single line comment based on file type
+- can potentially be obvious? hash of combination of commit hashes?
+- 
