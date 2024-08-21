@@ -2,7 +2,9 @@ package githubservices
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
+	"strings"
 
 	"github.com/google/go-github/v63/github"
 )
@@ -14,8 +16,8 @@ type pr struct{
   ctx context.Context
 }
 
-func (p *pr) getFiles(client *github.Client) ([]string, error) {
-  fs, _, err := client.PullRequests.ListFiles(p.ctx, p.owner, p.repo, p.number, nil)
+func (p *pr) getFiles(client *services) ([]string, error) {
+  fs, _, err := client.pr.ListFiles(p.ctx, p.owner, p.repo, p.number, nil)
   if err != nil {
     return []string{}, err
   }
@@ -32,8 +34,8 @@ func (p *pr) getFiles(client *github.Client) ([]string, error) {
   return names, nil
 }
 
-func (p *pr) getApprovedReviews(client *github.Client) ([]*github.PullRequestReview, error) {
-  rvws, _, err := client.PullRequests.ListReviews(p.ctx, p.owner, p.repo, p.number, nil)
+func (p *pr) getApprovedReviews(client *services) ([]*github.PullRequestReview, error) {
+  rvws, _, err := client.pr.ListReviews(p.ctx, p.owner, p.repo, p.number, nil)
   if err != nil{
     return []*github.PullRequestReview{}, err
   }
@@ -51,9 +53,24 @@ func (p *pr) getApprovedReviews(client *github.Client) ([]*github.PullRequestRev
   return approvals, nil
 }
 
-func (p *pr) getNitComments(client *github.Client, rvw *github.PullRequestReview) {
-  cmts, _, err := client.PullRequests.ListReviewComments(p.ctx, p.owner, p.repo, p.number, rvw.GetID())
-  for _, cmt := range cmts {
-    cmt.get
+// getValidNitPicks returns the number of successful nits that were found in the given review
+func (p *pr) getValidNitPicks(client *services, rvw *github.PullRequestReview) (int, error) {
+  cmts, _, err := client.pr.ListReviewComments(p.ctx, p.owner, p.repo, p.number, rvw.GetID(), nil)
+  if err != nil {
+    return 0, err
   }
+
+  sum := 0
+  for _, cmt := range cmts {
+    txt := strings.ToLower(cmt.GetBody())
+    if strings.Contains(txt, "nit") {
+      // nit is a placeholder
+      nit := "nit"
+      if strings.Contains(cmt.GetDiffHunk(), nit) {
+        sum++
+      }
+    }
+  }
+
+  return sum, nil
 }
