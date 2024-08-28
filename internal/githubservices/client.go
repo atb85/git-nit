@@ -8,7 +8,13 @@ import (
 )
 
 type services struct {
-  pr PullRequestServices
+  pr PullRequestServicer
+}
+
+type PullRequestServicer interface {
+  ListFiles(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) ([]*github.CommitFile, *github.Response, error)
+  ListReviewComments(ctx context.Context, owner string, repo string, number int, reviewID int64, opts *github.ListOptions) ([]*github.PullRequestComment, *github.Response, error)
+  ListReviews(ctx context.Context, owner string, repo string, number int, opts *github.ListOptions) ([]*github.PullRequestReview, *github.Response, error)
 }
 
 type PullRequestServices struct {}
@@ -63,7 +69,7 @@ func (s *PullRequestServices) ListReviews(ctx context.Context, owner string, rep
   return rvws, &github.Response{}, nil
 }
 
-func newClient(tkn string) *services {
+func NewClient(tkn string) *services {
 
   ctx := context.Background()
   ts := oauth2.StaticTokenSource(&oauth2.Token{AccessToken: tkn})
@@ -77,5 +83,9 @@ func newClient(tkn string) *services {
 }
 
 func newFakeClient() *services {
+
+  return &services{
+    pr: &PullRequestServices{},
+  }
 
 }

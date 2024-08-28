@@ -2,22 +2,21 @@ package githubservices
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"strings"
 
 	"github.com/google/go-github/v63/github"
 )
 
-type pr struct{
-  owner  string
-  repo   string
-  number int
-  ctx context.Context
+type Pr struct{
+  Owner  string
+  Repo   string
+  Number int
+  Ctx context.Context
 }
 
-func (p *pr) getFiles(client *services) ([]string, error) {
-  fs, _, err := client.pr.ListFiles(p.ctx, p.owner, p.repo, p.number, nil)
+func (p *Pr) GetFiles(client *services) ([]string, error) {
+  fs, _, err := client.pr.ListFiles(p.Ctx, p.Owner, p.Repo, p.Number, nil)
   if err != nil {
     return []string{}, err
   }
@@ -34,8 +33,8 @@ func (p *pr) getFiles(client *services) ([]string, error) {
   return names, nil
 }
 
-func (p *pr) getApprovedReviews(client *services) ([]*github.PullRequestReview, error) {
-  rvws, _, err := client.pr.ListReviews(p.ctx, p.owner, p.repo, p.number, nil)
+func (p *Pr) GetApprovedReviews(client *services) ([]*github.PullRequestReview, error) {
+  rvws, _, err := client.pr.ListReviews(p.Ctx, p.Owner, p.Repo, p.Number, nil)
   if err != nil{
     return []*github.PullRequestReview{}, err
   }
@@ -53,9 +52,9 @@ func (p *pr) getApprovedReviews(client *services) ([]*github.PullRequestReview, 
   return approvals, nil
 }
 
-// getValidNitPicks returns the number of successful nits that were found in the given review
-func (p *pr) getValidNitPicks(client *services, rvw *github.PullRequestReview) (int, error) {
-  cmts, _, err := client.pr.ListReviewComments(p.ctx, p.owner, p.repo, p.number, rvw.GetID(), nil)
+// GetValidNitPicks returns the number of successful nits that were found in the given review
+func (p *Pr) GetValidNitPicks(client *services, rvw *github.PullRequestReview) (int, error) {
+  cmts, _, err := client.pr.ListReviewComments(p.Ctx, p.Owner, p.Repo, p.Number, rvw.GetID(), nil)
   if err != nil {
     return 0, err
   }
