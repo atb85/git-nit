@@ -1,4 +1,4 @@
-package cmd
+package nits
 
 import (
 	"fmt"
@@ -34,11 +34,12 @@ var comments = map[string]comment{
 	"sql":   {"--", ""},
 }
 
-func generateComment(fname, nit string) string {
+// GenerateComment builds a file specific comment with given nit, return empty if incompatible file
+func GenerateComment(fname, nit string) string {
 	spl := strings.Split(fname, ".")
-  c, ok := comments[spl[len(spl) - 1]]
-  if !ok {
-    return ""
-  }
+	c, ok := comments[spl[len(spl)-1]]
+	if !ok {
+		return ""
+	}
 	return strings.TrimSpace(fmt.Sprintf("%s %s %s", c.start, nit, c.end))
 }

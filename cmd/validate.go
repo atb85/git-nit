@@ -6,6 +6,7 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
 	"git-nit/internal/githubservices"
 	"os"
 
@@ -23,71 +24,55 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-    num, err := cmd.Flags().GetInt("number")
-    if err != nil {
-      return err
-    }
 
-    own, err := cmd.Flags().GetString("owner")
-    if err != nil {
-      return err
-    }
+		num, err := cmd.Flags().GetInt("number")
+		if err != nil {
+			return err
+		}
 
-    rpo, err := cmd.Flags().GetString("repo")
-    if err != nil {
-      return err
-    }
+		own, err := cmd.Flags().GetString("owner")
+		if err != nil {
+			return err
+		}
 
-    pull := &githubservices.Pr{
-      Owner: own,
-      Repo: rpo,
-      Number: num,
-      Ctx: context.Background(),
-    }
+		rpo, err := cmd.Flags().GetString("repo")
+		if err != nil {
+			return err
+		}
 
-    tkn := os.Getenv("GITHUB_TOKEN")
-    if tkn == "" {
-      return errors.New("no github token set - set environment variable GITHUB_TOKEN")
-    }
+		pull := &githubservices.Pr{
+			Owner:  own,
+			Repo:   rpo,
+			Number: num,
+			Ctx:    context.Background(),
+		}
 
-    clnt := githubservices.NewClient(tkn)
+		tkn := os.Getenv("GITHUB_TOKEN")
+		if tkn == "" {
+			return errors.New("no github token set - set environment variable GITHUB_TOKEN")
+		}
 
-    apps, err := pull.GetApprovedReviews(clnt)
-    if err != nil {
-      return err
-    }
+		clnt := githubservices.NewClient(tkn)
 
-    for _, rvw := range apps {
-      nits, err := pull.GetValidNitPicks(clnt, rvw)
-      if err != nil {
-        return err
-      }
-    }
+		apps, err := pull.GetApprovedReviews(clnt)
+		if err != nil {
+			return err
+		}
 
-    return nil
+		for _, rvw := range apps {
+			nits, err := pull.GetValidNitPicks(clnt, rvw)
+			fmt.Println(nits)
+			if err != nil {
+				return err
+			}
+		}
+
+		return nil
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(cmd)
-
-  cmd.Flags().Int("number", -1, "the pull request number to validate reviews on")
-  cmd.Flags().String("owner", "", "repo owner - organisation or username")
-  cmd.Flags().String("repo", "", "the name of the repository")
-
-  req := []string{
-    "number",
-    "owner",
-    "repo",
-  }
-
-  for _, flag := range req {
-    err := cmd.MarkFlagRequired(flag)
-    if err != nil {
-      panic(err)
-    }
-  }
-
 
 	// Here you will define your flags and configuration settings.
 
